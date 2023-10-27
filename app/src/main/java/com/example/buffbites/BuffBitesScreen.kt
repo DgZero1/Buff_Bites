@@ -1,6 +1,9 @@
 package com.example.buffbites
 
+import android.content.Context
+import android.content.Intent
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -17,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.buffbites.ui.OrderViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,7 +75,7 @@ fun BuffBitesAppBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun BuffBitesApp(
     viewModel: OrderViewModel = viewModel(),
@@ -110,6 +114,9 @@ fun BuffBitesApp(
                         viewModel.updateVendor(it)
                         navController.navigate(BuffBitesScreen.Food.name)
                     },
+                    modifier = Modifier
+                        .fillMaxHeight()
+
 
 
 
@@ -119,10 +126,12 @@ fun BuffBitesApp(
             }
             composable(route= BuffBitesScreen.Food.name) {
                 ChooseMenuScreen(
-                    options = uiState.selectedMeal,
+                    options = uiState.selectedVendor?.menuItems ?: listOf(),
                     onNextButtonClicked = {navController.navigate(BuffBitesScreen.Pickup.name)
                     },
+                    onSelectionChanged = {viewModel.updateMeal(it)},
                     onCancelButtonClicked = {cancelOrderAndNavigateToStart(viewModel, navController)},
+                    modifier = Modifier.fillMaxHeight()
 
 
                 )
@@ -135,17 +144,29 @@ fun BuffBitesApp(
                     onNextButtonClicked = {navController.navigate(BuffBitesScreen.Summary.name)
                     },
                     onCancelButtonClicked = {cancelOrderAndNavigateToStart(viewModel, navController)},
+                    modifier = Modifier.fillMaxHeight()
                 )
             }
                 composable(route= BuffBitesScreen.Summary.name) {
+                    val context = LocalContext.current
                    OrderSummaryScreen(
                        orderUiState = uiState,
-                       onCancelButtonClicked = {
-                           cancelOrderAndNavigateToStart(viewModel, navController)
-                       },
-                       onSendButtonClicked= {subject: String, summary: String) ->},
 
-                   )
+                       onCancelButtonClicked = { cancelOrderAndNavigateToStart(viewModel, navController) },
+                       onSendButtonClicked ={subject: String, summary: String ->
+                           shareOrder( context, subject = subject, summary = summary)
+                       },
+
+
+                       )
+
+
+
+                }
+
+
+
+
 
         }
 
@@ -153,10 +174,26 @@ fun BuffBitesApp(
 
     }
 }
-}
+
 private fun cancelOrderAndNavigateToStart(
     viewModel: OrderViewModel,
     navController: NavHostController
-){
+) {
     viewModel.resetOrder()
     navController.popBackStack(BuffBitesScreen.Start.name, inclusive = false)
+}
+
+private fun shareOrder(context: Context, subject: String, summary: String){
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, summary)
+    }
+    context.startActivity(
+        Intent.createChooser(
+            intent,
+            context.getString(R.string.new_buffbites_order)
+        )
+    )
+
+}

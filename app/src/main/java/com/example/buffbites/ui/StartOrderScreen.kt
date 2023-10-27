@@ -25,13 +25,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buffbites.R
 import com.example.buffbites.data.Datasource
+import com.example.buffbites.data.Datasource.restaurants
+import com.example.buffbites.model.MenuItem
 import com.example.buffbites.model.Restaurant
 import com.example.buffbites.ui.theme.BuffBitesTheme
 
 @Composable
 fun StartOrderScreen(
     restaurantOptions: List<Restaurant>,
-    onNextButtonClicked: () -> Unit={},
+    onNextButtonClicked: (Restaurant) -> Unit={},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -55,7 +57,7 @@ fun StartOrderScreen(
                 style = MaterialTheme.typography.headlineSmall
             )
         }
-        Row() {
+        Row {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -63,7 +65,7 @@ fun StartOrderScreen(
             ) {
                 restaurantOptions.forEach {
                     Button(
-                        onClick = { onNextButtonClicked },
+                        onClick = {onNextButtonClicked(it)},
                         modifier = Modifier.widthIn(min = 250.dp),
                     ) {
                         Text(stringResource(it.name))

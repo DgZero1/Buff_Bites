@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.buffbites.BuffBitesScreen
 import com.example.buffbites.R
 import com.example.buffbites.data.Datasource
 import com.example.buffbites.model.MenuItem
@@ -36,7 +37,7 @@ fun ChooseMenuScreen(
     options: List<MenuItem>,
     onSelectionChanged: (MenuItem) -> Unit,
     onNextButtonClicked: () -> Unit={},
-    onCancelButtonClicked: () -> Unit,
+    onCancelButtonClicked: () ->  Unit,
     modifier: Modifier = Modifier,
 ) {
     var selectedItemName by rememberSaveable { mutableStateOf("") }
@@ -63,7 +64,7 @@ fun ChooseMenuScreen(
         MenuScreenButtonGroup(
             selectedItemName = selectedItemName,
             onCancelButtonClicked = { },
-            onNextButtonClicked = { /* TODO */ },
+            onNextButtonClicked = {onNextButtonClicked()},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -121,7 +122,8 @@ fun MenuScreenButtonGroup(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.Bottom
     ){
-        OutlinedButton(modifier = Modifier.weight(1f), onClick = onCancelButtonClicked) {
+        OutlinedButton(modifier = Modifier.weight(1f),
+            onClick = onCancelButtonClicked) {
             Text(stringResource(R.string.cancel))
         }
         Button(

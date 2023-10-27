@@ -1,5 +1,7 @@
 package com.example.buffbites.ui
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +33,7 @@ fun OrderSummaryScreen(
     orderUiState: OrderUiState,
     modifier: Modifier = Modifier,
     onSendButtonClicked: (String, String) -> Unit,
-    onCancelButtonClicked: () -> Unit,
+    onCancelButtonClicked: () -> Unit={},
 ) {
     // Format all prices into strings with dollar sign and 2 decimal places (e.g. $4.99)
     val formattedSubTotal = NumberFormat.getCurrencyInstance().format(orderUiState.orderSubtotal)
@@ -100,13 +102,13 @@ fun OrderSummaryScreen(
         ) {
             OutlinedButton(
                 modifier = Modifier.weight(1f),
-                onClick = { /* TODO */ }
+                onClick = onCancelButtonClicked
             ) {
                 Text(stringResource(R.string.cancel))
             }
             Button(
                 modifier = Modifier.weight(1f),
-                onClick = { /* TODO */ }
+                onClick = { onSendButtonClicked(orderSubject, orderSummary )}
             ) {
                 Text(stringResource(R.string.submit))
             }
@@ -127,13 +129,16 @@ fun OrderSummaryScreenPreview() {
                 orderTotalPrice = Datasource.restaurants[0].menuItems[0].price + Datasource.restaurants[0].menuItems[0].price * 0.08,
                 selectedDeliveryTime = "Sat Sep 24 7:00 PM"
             ),
-            onSendButtonClicked= {subject: String, summary: String) ->},
             onCancelButtonClicked={},
+            onSendButtonClicked= {subject: String, summary: String ->},
+
             modifier = Modifier
                 .fillMaxHeight()
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         )
+
+
     }
 }
 
@@ -144,3 +149,17 @@ private fun cancelOrderAndNavigateToStart(
     viewModel.resetOrder()
     navController.popBackStack(BuffBitesScreen.Start.name, inclusive = false)
 }
+private fun shareOrder(context: Context, subject: String, summary: String){
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, summary)
+    }
+    context.startActivity(
+        Intent.createChooser(
+            intent,
+            context.getString(R.string.new_buffbites_order)
+        )
+    )
+
+    }
